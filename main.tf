@@ -22,9 +22,11 @@ provider "proxmox" {
 }
 
 module "vm" {
-  source = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v1.0.2"
+  source = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v1.2.1"
 
   for_each = var.vms
+
+  control_server = each.value.control_server
 
   virtual_environment_endpoint  = each.value.virtual_environment_endpoint
   virtual_environment_api_token = each.value.virtual_environment_api_token
@@ -42,6 +44,7 @@ module "vm" {
   operating_system = each.value.operating_system
   cpu              = each.value.cpu
   memory           = each.value.memory
+  disk_size        = each.value.disk_size
   default_user     = each.value.default_user
   users            = each.value.users
   tpm_version      = each.value.tpm_version

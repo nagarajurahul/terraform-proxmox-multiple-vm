@@ -1,6 +1,7 @@
 variable "vms" {
   description = "Map of VMs to create."
   type = map(object({
+    control_server                = bool
     virtual_environment_endpoint  = string
     virtual_environment_api_token = string
     virtual_environment_username  = string
@@ -15,6 +16,7 @@ variable "vms" {
     operating_system              = string
     cpu                           = number
     memory                        = number
+    disk_size                     = number
     default_user                  = string
     users = map(object({
       password            = string
