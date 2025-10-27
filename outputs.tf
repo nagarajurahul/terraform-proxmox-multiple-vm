@@ -9,7 +9,11 @@ output "vm_ips" {
     for name, mod in module.vm :
     name => (
       try(
-        [for ip_list in flatten(mod.ipv4_addresses) : ip_list if ip_list != "127.0.0.1"][0],
+        flatten([
+          for iface in mod.vm_ipv4_addresses : [
+            for ip in iface : ip if ip != "127.0.0.1"
+          ]
+        ])[0],
         null
       )
     )
@@ -20,7 +24,8 @@ output "vm_ips" {
 output "vm_hostnames" {
   description = "Hostnames of all deployed VMs."
   value = {
-    for name, mod in module.vm : name => mod.vm_hostname
+    for name, mod in module.vm :
+    name => mod.vm_hostname
   }
 }
 
@@ -30,12 +35,16 @@ output "vm_inventory" {
   value = {
     for name, mod in module.vm :
     name => {
-      hostname = mod.vm_hostname
-      ansible_host = try(
-        [for ip_list in flatten(mod.ipv4_addresses) : ip_list if ip_list != "127.0.0.1"][0],
+      hostname      = mod.vm_hostname
+      ansible_host  = try(
+        flatten([
+          for iface in mod.vm_ipv4_addresses : [
+            for ip in iface : ip if ip != "127.0.0.1"
+          ]
+        ])[0],
         null
       )
-      ansible_user = "ubuntu"
+      ansible_user  = "ubuntu"
     }
   }
 }
@@ -43,21 +52,28 @@ output "vm_inventory" {
 # Human-readable INI (for direct copy to ansible hosts file)
 output "ansible_inventory_ini" {
   description = "Ansible inventory (INI formatted)."
-  value = join("\n", concat(
-    ["[vms]"],
-    [
-      for name, mod in module.vm :
-      format(
-        "%s ansible_host=%s ansible_user=%s",
-        mod.vm_hostname,
-        try(
-          [for ip_list in flatten(mod.ipv4_addresses) : ip_list if ip_list != "127.0.0.1"][0],
-          "N/A"
-        ),
-        "ubuntu"
-      )
-    ]
-  ))
+  value = join(
+    "\n",
+    concat(
+      ["[vms]"],
+      [
+        for name, mod in module.vm :
+        format(
+          "%s ansible_host=%s ansible_user=%s",
+          mod.vm_hostname,
+          try(
+            flatten([
+              for iface in mod.vm_ipv4_addresses : [
+                for ip in iface : ip if ip != "127.0.0.1"
+              ]
+            ])[0],
+            "N/A"
+          ),
+          "ubuntu"
+        )
+      ]
+    )
+  )
 }
 
 # Machine-readable JSON (for dynamic inventory or tooling)
@@ -67,12 +83,16 @@ output "ansible_inventory_json" {
     all = {
       hosts = [
         for name, mod in module.vm : {
-          name = mod.vm_hostname
-          ansible_host = try(
-            [for ip_list in flatten(mod.ipv4_addresses) : ip_list if ip_list != "127.0.0.1"][0],
+          name          = mod.vm_hostname
+          ansible_host  = try(
+            flatten([
+              for iface in mod.vm_ipv4_addresses : [
+                for ip in iface : ip if ip != "127.0.0.1"
+              ]
+            ])[0],
             null
           )
-          ansible_user = "ubuntu"
+          ansible_user  = "ubuntu"
         }
       ]
     }
