@@ -44,8 +44,8 @@ module "vm" {
   operating_system = each.value.operating_system
   cpu              = each.value.cpu
   memory           = each.value.memory
-  dns_domain       = each.dns_domain
-  dns_servers      = each.dns_servers
+  dns_domain       = each.value.dns_domain
+  dns_servers      = each.value.dns_servers
   disk_size        = each.value.disk_size
   default_user     = each.value.default_user
   users            = each.value.users
