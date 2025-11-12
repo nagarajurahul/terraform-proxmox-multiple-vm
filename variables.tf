@@ -22,7 +22,7 @@ variable "vms" {
     disk_size                     = number
     default_user                  = string
     users = map(object({
-      password            = string
+      hashed_password            = string
       ssh_authorized_keys = list(string)
     }))
     tpm_version = string
