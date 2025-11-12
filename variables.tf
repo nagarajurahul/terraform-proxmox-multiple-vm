@@ -12,6 +12,7 @@ variable "vms" {
     description                   = string
     tags                          = list(string)
     vm_on_boot                    = bool
+    vm_protection                 = bool
     iso_path                      = string
     operating_system              = string
     cpu                           = number
