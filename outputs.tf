@@ -35,8 +35,8 @@ output "vm_inventory" {
   value = {
     for name, mod in module.vm :
     name => {
-      hostname      = mod.vm_hostname
-      ansible_host  = try(
+      hostname = mod.vm_hostname
+      ansible_host = try(
         flatten([
           for iface in mod.vm_ipv4_addresses : [
             for ip in iface : ip if ip != "127.0.0.1"
@@ -44,7 +44,7 @@ output "vm_inventory" {
         ])[0],
         null
       )
-      ansible_user  = "ubuntu"
+      ansible_user = "ubuntu"
     }
   }
 }
@@ -83,8 +83,8 @@ output "ansible_inventory_json" {
     all = {
       hosts = [
         for name, mod in module.vm : {
-          name          = mod.vm_hostname
-          ansible_host  = try(
+          name = mod.vm_hostname
+          ansible_host = try(
             flatten([
               for iface in mod.vm_ipv4_addresses : [
                 for ip in iface : ip if ip != "127.0.0.1"
@@ -92,7 +92,7 @@ output "ansible_inventory_json" {
             ])[0],
             null
           )
-          ansible_user  = "ubuntu"
+          ansible_user = "ubuntu"
         }
       ]
     }
