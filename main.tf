@@ -50,7 +50,6 @@ module "vm" {
   dns_domain       = each.value.dns_domain
   dns_servers      = each.value.dns_servers
   disk_size        = each.value.disk_size
-  default_user     = each.value.default_user
   users            = each.value.users
   tpm_version      = each.value.tpm_version
 }
