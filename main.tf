@@ -32,8 +32,9 @@ module "vm" {
   virtual_environment_api_token = each.value.virtual_environment_api_token
   virtual_environment_username  = each.value.virtual_environment_username
 
-  node_name     = each.value.node_name
-  datastore_id  = each.value.datastore_id
+  node_name    = each.value.node_name
+  datastore_id = each.value.datastore_id
+
   vm_name       = each.value.vm_name
   vm_hostname   = each.value.vm_hostname
   description   = each.value.description
@@ -41,15 +42,17 @@ module "vm" {
   vm_on_boot    = each.value.vm_on_boot
   vm_protection = each.value.vm_protection
 
+  dns_domain          = each.value.dns_domain
+  dns_servers         = each.value.dns_servers
   ca_root_certificate = file("root_ca.crt")
 
   iso_path         = each.value.iso_path
   operating_system = each.value.operating_system
-  cpu              = each.value.cpu
-  memory           = each.value.memory
-  dns_domain       = each.value.dns_domain
-  dns_servers      = each.value.dns_servers
-  disk_size        = each.value.disk_size
-  users            = each.value.users
-  tpm_version      = each.value.tpm_version
+
+  cpu       = each.value.cpu
+  memory    = each.value.memory
+  disk_size = each.value.disk_size
+
+  users       = each.value.users
+  tpm_version = each.value.tpm_version
 }

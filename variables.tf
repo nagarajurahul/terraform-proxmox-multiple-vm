@@ -13,12 +13,12 @@ variable "vms" {
     tags                          = list(string)
     vm_on_boot                    = bool
     vm_protection                 = bool
+    dns_domain                    = string
+    dns_servers                   = list(string)
     iso_path                      = string
     operating_system              = string
     cpu                           = number
     memory                        = number
-    dns_domain                    = string
-    dns_servers                   = list(string)
     disk_size                     = number
     users = map(object({
       hashed_password     = string
