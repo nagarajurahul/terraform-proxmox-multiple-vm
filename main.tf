@@ -22,7 +22,7 @@ provider "proxmox" {
 }
 
 module "vm" {
-  source = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v2.0.2"
+  source = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v2.1.0"
 
   for_each = var.vms 
 
@@ -40,6 +40,8 @@ module "vm" {
   tags          = each.value.tags
   vm_on_boot    = each.value.vm_on_boot
   vm_protection = each.value.vm_protection
+
+  ca_root_certificate = file("root_ca.crt")
 
   iso_path         = each.value.iso_path
   operating_system = each.value.operating_system
