@@ -44,7 +44,7 @@ module "vm" {
 
   dns_domain          = each.value.dns_domain
   dns_servers         = each.value.dns_servers
-  ca_root_certificate = trimpspace(file("root_ca.crt"))
+  ca_root_certificate = trimspace(file("root_ca.crt"))
 
   iso_path         = each.value.iso_path
   operating_system = each.value.operating_system
