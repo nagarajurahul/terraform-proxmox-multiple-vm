@@ -20,7 +20,6 @@ variable "vms" {
     dns_domain                    = string
     dns_servers                   = list(string)
     disk_size                     = number
-    default_user                  = string
     users = map(object({
       hashed_password     = string
       ssh_authorized_keys = list(string)
