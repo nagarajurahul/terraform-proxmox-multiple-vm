@@ -34,6 +34,7 @@ module "vm" {
   datastore_id     = each.value.datastore_id
   iso_path         = each.value.iso_path
   operating_system = each.value.operating_system
+  environment      = each.value.environment
 
   vm_name       = each.value.vm_name
   vm_hostname   = each.value.vm_hostname
@@ -41,7 +42,6 @@ module "vm" {
   tags          = each.value.tags
   vm_on_boot    = each.value.vm_on_boot
   vm_protection = each.value.vm_protection
-  environment   = each.value.environment
 
   cpu       = each.value.cpu
   memory    = each.value.memory
