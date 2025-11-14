@@ -4,6 +4,7 @@ variable "vms" {
     control_server                = bool
     virtual_environment_endpoint  = string
     virtual_environment_api_token = string
+    proxmox_tls_insecure          = bool
     virtual_environment_username  = string
     node_name                     = string
     datastore_id                  = string

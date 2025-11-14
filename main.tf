@@ -14,10 +14,12 @@ locals {
 provider "proxmox" {
   endpoint  = var.vms[local.first].virtual_environment_endpoint
   api_token = var.vms[local.first].virtual_environment_api_token
-  insecure  = true
+  insecure  = var.vms[local.first].proxmox_tls_insecure
   ssh {
     agent    = true
     username = var.vms[local.first].virtual_environment_username
+    # Add private key path for better security
+    # private_key = file(pathexpand("~/.ssh/id_rsa"))
   }
 }
 
