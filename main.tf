@@ -24,7 +24,7 @@ provider "proxmox" {
 }
 
 module "vm" {
-  source = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v2.1.4"
+  source = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v3.0.0"
 
   for_each = var.vms
 
