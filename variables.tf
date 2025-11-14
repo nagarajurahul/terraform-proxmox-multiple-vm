@@ -25,6 +25,7 @@ variable "vms" {
       hashed_password     = string
       ssh_authorized_keys = list(string)
     }))
+    lock_password = bool
     tpm_version = string
   }))
 }
