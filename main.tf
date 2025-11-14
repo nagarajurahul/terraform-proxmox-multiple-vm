@@ -30,8 +30,8 @@ module "vm" {
 
   control_server = each.value.control_server
 
-  node_name    = each.value.node_name
-  datastore_id = each.value.datastore_id
+  node_name        = each.value.node_name
+  datastore_id     = each.value.datastore_id
   iso_path         = each.value.iso_path
   operating_system = each.value.operating_system
 
@@ -56,5 +56,5 @@ module "vm" {
   users         = each.value.users
   lock_password = each.value.lock_password
   # Add git user and email here
-  tpm_version   = each.value.tpm_version
+  tpm_version = each.value.tpm_version
 }
