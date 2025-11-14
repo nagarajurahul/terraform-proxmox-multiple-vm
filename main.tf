@@ -30,10 +30,6 @@ module "vm" {
 
   control_server = each.value.control_server
 
-  virtual_environment_endpoint  = each.value.virtual_environment_endpoint
-  virtual_environment_api_token = each.value.virtual_environment_api_token
-  virtual_environment_username  = each.value.virtual_environment_username
-
   node_name    = each.value.node_name
   datastore_id = each.value.datastore_id
 
