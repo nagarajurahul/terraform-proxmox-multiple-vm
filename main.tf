@@ -53,7 +53,7 @@ module "vm" {
 
   dns_domain          = each.value.dns_domain
   dns_servers         = each.value.dns_servers
-  ca_root_certificate = trimspace(file("root_ca.crt"))
+  ca_root_certificate = trimspace(try(file("${path.module}/root_ca.crt"), ""))
 
   users         = each.value.users
   lock_password = each.value.lock_password
