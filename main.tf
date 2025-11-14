@@ -51,7 +51,7 @@ module "vm" {
   memory    = each.value.memory
   disk_size = each.value.disk_size
 
-  users       = each.value.users
+  users         = each.value.users
   lock_password = each.value.lock_password
-  tpm_version = each.value.tpm_version
+  tpm_version   = each.value.tpm_version
 }
