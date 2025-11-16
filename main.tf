@@ -26,7 +26,7 @@ provider "proxmox" {
 }
 
 module "vm" {
-  source = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v3.0.7"
+  source = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v3.1.0"
 
   for_each = var.vms
 
@@ -59,4 +59,13 @@ module "vm" {
   lock_password = each.value.lock_password
   # Add git user and email here
   tpm_version = each.value.tpm_version
+
+  ssh_client_alive_interval  = each.value.ssh_client_alive_interval
+  ssh_client_alive_count_max = each.value.ssh_client_alive_count_max
+  ssh_max_auth_tries         = each.value.ssh_max_auth_tries
+  ssh_max_sessions           = each.value.ssh_max_sessions
+
+  fail2ban_max_retry = each.value.fail2ban_max_retry
+  fail2ban_ban_time  = each.value.fail2ban_ban_time
+  fail2ban_find_time = each.value.fail2ban_find_time
 }

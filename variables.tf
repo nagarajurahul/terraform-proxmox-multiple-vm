@@ -26,7 +26,14 @@ variable "vms" {
       hashed_password     = string
       ssh_authorized_keys = list(string)
     }))
-    lock_password = bool
-    tpm_version   = string
+    lock_password              = bool
+    tpm_version                = string
+    ssh_client_alive_interval  = number
+    ssh_client_alive_count_max = number
+    ssh_max_auth_tries         = number
+    ssh_max_sessions           = number
+    fail2ban_max_retry         = number
+    fail2ban_ban_time          = number
+    fail2ban_find_time         = number
   }))
 }
