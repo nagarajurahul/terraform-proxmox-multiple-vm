@@ -16,9 +16,9 @@ module "vm" {
   # Cluster + storage + other overrides
   node_name        = each.value.node_name
   datastore_id     = each.value.datastore_id
-  iso_path         = var.value.iso_path
-  operating_system = var.value.operating_system
-  environment      = var.value.environment
+  iso_path         = each.value.iso_path
+  operating_system = each.value.operating_system
+  environment      = each.value.environment
 
   # Defaults
   dns_domain  = var.vm_defaults.dns_domain
