@@ -1,4 +1,5 @@
 variable "vm_defaults" {
+  description = "Default values for VMs"
   type = object({
     virtual_environment_endpoint  = string
     virtual_environment_api_token = string
@@ -35,7 +36,7 @@ variable "vm_defaults" {
 }
 
 variable "vm_groups" {
-  description = "VM definitions for core services"
+  description = "VM definitions"
   type = map(map(object({
     vm_name     = string
     vm_hostname = string
