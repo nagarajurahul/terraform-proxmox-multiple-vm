@@ -1,5 +1,5 @@
 locals {
-  # Merge and flatten core-services groups
+  # Merge and flatten groups
   all_vms = merge([
     for group, vms in var.vm_groups : {
       for vm_key, vm in vms :
