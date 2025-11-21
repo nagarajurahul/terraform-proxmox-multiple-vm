@@ -30,6 +30,7 @@ variable "vm_defaults" {
       hashed_password     = string
       ssh_authorized_keys = list(string)
     }))
+    default_user = string
   })
 }
 
