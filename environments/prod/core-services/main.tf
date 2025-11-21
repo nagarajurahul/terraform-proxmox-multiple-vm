@@ -1,5 +1,5 @@
 module "vm" {
-  source = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v3.2.0"
+  source   = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v3.2.0"
   for_each = local.all_vms
 
   # VM properties
@@ -14,18 +14,18 @@ module "vm" {
   vm_protection = each.value.vm_protection
 
   # Cluster + storage + other overrides
-  node_name    = each.value.node_name
-  datastore_id = each.value.datastore_id
+  node_name        = each.value.node_name
+  datastore_id     = each.value.datastore_id
   iso_path         = var.value.iso_path
   operating_system = var.value.operating_system
   environment      = var.value.environment
 
   # Defaults
-  dns_domain          = var.vm_defaults.dns_domain
-  dns_servers         = var.vm_defaults.dns_servers
+  dns_domain  = var.vm_defaults.dns_domain
+  dns_servers = var.vm_defaults.dns_servers
 
   ca_root_certificate = trimspace(try(file("${path.module}/root_ca.crt"), ""))
-  
+
   users         = var.vm_defaults.users
   lock_password = var.vm_defaults.lock_password
   tpm_version   = var.vm_defaults.tpm_version

@@ -5,9 +5,9 @@ variable "vm_defaults" {
     proxmox_tls_insecure          = bool
     virtual_environment_username  = string
 
-    node_name     = string
-    datastore_id  = string
-    iso_path      = string
+    node_name        = string
+    datastore_id     = string
+    iso_path         = string
     operating_system = string
     environment      = string
 
@@ -36,21 +36,21 @@ variable "vm_defaults" {
 variable "vm_groups" {
   description = "VM definitions for core services"
   type = map(map(object({
-    vm_name       = string
-    vm_hostname   = string
-    description   = string
-    tags          = list(string)
-    cpu           = number
-    memory        = number
-    disk_size     = number
+    vm_name     = string
+    vm_hostname = string
+    description = string
+    tags        = list(string)
+    cpu         = number
+    memory      = number
+    disk_size   = number
 
     vm_on_boot    = optional(bool, true)
     vm_protection = optional(bool, false)
 
     # Optional overrides
-    node_name    = optional(string)
-    datastore_id = optional(string)
-    iso_path      = optional(string)
+    node_name        = optional(string)
+    datastore_id     = optional(string)
+    iso_path         = optional(string)
     operating_system = optional(string)
     environment      = optional(string)
   })))
