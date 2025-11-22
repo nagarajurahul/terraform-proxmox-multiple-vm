@@ -31,21 +31,30 @@ jobs:
 
     - name: Detect changed tiers
       id: set-tiers
+      shell: bash
       run: |
-        # Define all tiers
+        echo "🔍 Detecting changed tiers..."
+
+        # Define known tiers
         ALL_TIERS='["environments/prod/core-services","environments/prod/platform-services","environments/prod/workload-services"]'
 
-        # Run ALL TIERS on manual or main pushes
+        ###########################################
+        # 1. workflow_dispatch OR push to main/multiple-layers → always run all tiers
+        ###########################################
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || \
-          ([[ "${{ github.event_name }}" == "push" ]] && \
-            ([[ "${{ github.ref }}" == "refs/heads/main" ]] || \
+           ([[ "${{ github.event_name }}" == "push" ]] && \
+           ([[ "${{ github.ref }}" == "refs/heads/main" ]] || \
             [[ "${{ github.ref }}" == "refs/heads/multiple-layers" ]])); then
+
           echo "tiers=$(echo $ALL_TIERS | jq -c)" >> $GITHUB_OUTPUT
           echo "any_changed=true" >> $GITHUB_OUTPUT
+          echo "🔵 Running all tiers due to main push or workflow_dispatch"
           exit 0
         fi
 
-        # Determine CHANGED_FILES
+        ###########################################
+        # 2. Detect changed files depending on event type
+        ###########################################
         if [[ "${{ github.event_name }}" == "pull_request" ]]; then
           BASE="${{ github.base_ref }}"
           git fetch origin $BASE
@@ -54,29 +63,56 @@ jobs:
           CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
         fi
 
+        echo "Changed files:"
+        echo "$CHANGED_FILES"
+
         CHANGED_TIERS="[]"
 
+        ###########################################
+        # 3. Detect per-tier changes
+        ###########################################
         for tier in "environments/prod/core-services" "environments/prod/platform-services" "environments/prod/workload-services"; do
           if echo "$CHANGED_FILES" | grep -q "^${tier}/"; then
             CHANGED_TIERS=$(echo "$CHANGED_TIERS" | jq -c --arg t "$tier" '. + [$t]')
           fi
         done
 
-        # Shared files trigger all
+        ###########################################
+        # 4. Shared files or modules changes → all tiers
+        ###########################################
         if echo "$CHANGED_FILES" | grep -qE "^environments/prod/_shared/|^modules/"; then
           CHANGED_TIERS=$(echo "$ALL_TIERS" | jq -c)
         fi
 
-        # Determine changes
+        ###########################################
+        # 5. Filter out tiers that DO NOT exist
+        ###########################################
+        VALID_TIERS="[]"
+
+        for tier in "environments/prod/core-services" "environments/prod/platform-services" "environments/prod/workload-services"; do
+          if [ -d "$tier" ]; then
+            if echo "$CHANGED_TIERS" | grep -q "$tier"; then
+              VALID_TIERS=$(echo "$VALID_TIERS" | jq -c --arg t "$tier" '. + [$t]')
+            fi
+          fi
+        done
+
+        CHANGED_TIERS=$VALID_TIERS
+        echo "Valid tiers: $CHANGED_TIERS"
+
+        ###########################################
+        # 6. Set GitHub outputs
+        ###########################################
         if [[ "$CHANGED_TIERS" == "[]" ]]; then
           echo "any_changed=false" >> $GITHUB_OUTPUT
+          echo "tiers=[]" >> $GITHUB_OUTPUT
+          echo "🟡 No Terraform changes detected"
         else
           echo "any_changed=true" >> $GITHUB_OUTPUT
+          echo "tiers=$CHANGED_TIERS" >> $GITHUB_OUTPUT
+          echo "🟢 Changed tiers: $CHANGED_TIERS"
         fi
 
-        echo "tiers=$CHANGED_TIERS" >> $GITHUB_OUTPUT
-        echo "Changed tiers: $CHANGED_TIERS"
-  
   #############################################
   # Job 1: Terraform Format (repo-wide)
   #############################################
