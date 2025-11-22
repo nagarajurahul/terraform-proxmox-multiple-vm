@@ -39,3 +39,4 @@ module "vm" {
   fail2ban_ban_time  = var.vm_defaults.fail2ban_ban_time
   fail2ban_find_time = var.vm_defaults.fail2ban_find_time
 }
+
