@@ -32,40 +32,46 @@ jobs:
     - name: Detect changed tiers
       id: set-tiers
       run: |
-        # Define all tiers
         ALL_TIERS='["environments/prod/core-services","environments/prod/platform-services","environments/prod/workload-services"]'
-
-        # For workflow_dispatch or main branch push, check all tiers
+    
+        # Run ALL TIERS on manual or main pushes
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || \
            [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
           echo "tiers=$ALL_TIERS" >> $GITHUB_OUTPUT
           echo "any_changed=true" >> $GITHUB_OUTPUT
           exit 0
         fi
-
-        # For PRs, detect which tiers changed
-        CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+    
+        # ---- Determine CHANGED_FILES depending on event type ----
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          BASE="${{ github.base_ref }}"
+          git fetch origin $BASE
+          CHANGED_FILES=$(git diff --name-only origin/$BASE...HEAD)
+        else
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+        fi
+    
         CHANGED_TIERS="[]"
-
+    
         for tier in "environments/prod/core-services" "environments/prod/platform-services" "environments/prod/workload-services"; do
           if echo "$CHANGED_FILES" | grep -q "^${tier}/"; then
             CHANGED_TIERS=$(echo "$CHANGED_TIERS" | jq --arg t "$tier" '. + [$t]')
           fi
         done
-
-        # Also check shared files that affect all tiers
+    
         if echo "$CHANGED_FILES" | grep -qE "^environments/prod/_shared/|^modules/"; then
           CHANGED_TIERS=$ALL_TIERS
         fi
-
+    
         if [[ "$CHANGED_TIERS" == "[]" ]]; then
           echo "any_changed=false" >> $GITHUB_OUTPUT
         else
           echo "any_changed=true" >> $GITHUB_OUTPUT
         fi
-
+    
         echo "tiers=$CHANGED_TIERS" >> $GITHUB_OUTPUT
         echo "Changed tiers: $CHANGED_TIERS"
+    
 
   #############################################
   # Job 1: Terraform Format (repo-wide)
