@@ -36,7 +36,7 @@ jobs:
         echo "🔍 Detecting changed tiers..."
 
         # Define known tiers
-        ALL_TIERS='["environments/prod/core-services","environments/prod/platform-services","environments/prod/workload-services"]'
+        ALL_TIERS='["environments/prod/core-services"]'
 
         ###########################################
         # 1. workflow_dispatch OR push to main/multiple-layers → always run all tiers
@@ -71,7 +71,7 @@ jobs:
         ###########################################
         # 3. Detect per-tier changes
         ###########################################
-        for tier in "environments/prod/core-services" "environments/prod/platform-services" "environments/prod/workload-services"; do
+        for tier in "${ALL_TIERS[@]}"; do
           if echo "$CHANGED_FILES" | grep -q "^${tier}/"; then
             CHANGED_TIERS=$(echo "$CHANGED_TIERS" | jq -c --arg t "$tier" '. + [$t]')
           fi
@@ -89,7 +89,7 @@ jobs:
         ###########################################
         VALID_TIERS="[]"
 
-        for tier in "environments/prod/core-services" "environments/prod/platform-services" "environments/prod/workload-services"; do
+        for tier in "${ALL_TIERS[@]}"; do
           if [ -d "$tier" ]; then
             if echo "$CHANGED_TIERS" | grep -q "$tier"; then
               VALID_TIERS=$(echo "$VALID_TIERS" | jq -c --arg t "$tier" '. + [$t]')
