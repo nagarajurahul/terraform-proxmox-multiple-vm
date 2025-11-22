@@ -1,5 +1,6 @@
 module "vm" {
-  source   = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=v3.2.0"
+  # v3.2.0
+  source   = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=e71679a91e5deb70e9a1b514ff097f5b17ce928a"
   for_each = local.all_vms
 
   # VM properties
