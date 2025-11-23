@@ -8,7 +8,7 @@
 output "vm_ips" {
   description = "Map of VM names to their primary IPv4 addresses"
   value = {
-    for key, vm in module.vm : key => vm.ipv4_address
+    for key, vm in module.vm : key => vm.vm_ipv4_addresses
   }
 }
 
@@ -32,7 +32,7 @@ output "ansible_inventory_ini" {
         format(
           "%s ansible_host=%s ansible_user=%s",
           module.vm[key].vm_hostname,
-          module.vm[key].ipv4_address,
+          module.vm[key].vm_ipv4_addresses,
           var.security.default_user
         )
       ]
@@ -50,7 +50,7 @@ output "ansible_inventory_json" {
       _meta = {
         hostvars = {
           for key, vm in module.vm : vm.vm_hostname => {
-            ansible_host = vm.ipv4_address
+            ansible_host = vm.vm_ipv4_addresses
             ansible_user = var.security.default_user
             vm_group     = local.all_vms[key].group
             environment  = var.environment
