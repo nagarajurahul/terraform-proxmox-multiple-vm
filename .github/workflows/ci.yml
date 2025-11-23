@@ -33,10 +33,14 @@ jobs:
       id: set-tiers
       shell: bash
       run: |
+        set -euo pipefail
         echo "🔍 Detecting changed tiers..."
 
-        # Define known tiers
-        ALL_TIERS='["environments/prod/core-services"]'
+        # Define known tiers as JSON array
+        ALL_TIERS_JSON='["environments/prod/core-services"]'
+
+        # Convert to bash array for iteration
+        readarray -t ALL_TIERS < <(echo "$ALL_TIERS_JSON" | jq -r '.[]')
 
         ###########################################
         # 1. workflow_dispatch OR push to main/multiple-layers → always run all tiers
@@ -46,9 +50,9 @@ jobs:
            ([[ "${{ github.ref }}" == "refs/heads/main" ]] || \
             [[ "${{ github.ref }}" == "refs/heads/multiple-layers" ]])); then
 
-          echo "tiers=$(echo $ALL_TIERS | jq -c)" >> $GITHUB_OUTPUT
+          echo "tiers=$ALL_TIERS_JSON" >> $GITHUB_OUTPUT
           echo "any_changed=true" >> $GITHUB_OUTPUT
-          echo "🔵 Running all tiers due to main push or workflow_dispatch"
+          echo "🔵 Running all tiers due to push or workflow_dispatch"
           exit 0
         fi
 
@@ -57,10 +61,11 @@ jobs:
         ###########################################
         if [[ "${{ github.event_name }}" == "pull_request" ]]; then
           BASE="${{ github.base_ref }}"
-          git fetch origin $BASE
-          CHANGED_FILES=$(git diff --name-only origin/$BASE...HEAD)
+          git fetch origin "$BASE" --depth=1
+          CHANGED_FILES=$(git diff --name-only "origin/$BASE"...HEAD)
         else
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          # For non-PR pushes to non-main branches
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git ls-files)
         fi
 
         echo "Changed files:"
@@ -81,7 +86,7 @@ jobs:
         # 4. Shared files or modules changes → all tiers
         ###########################################
         if echo "$CHANGED_FILES" | grep -qE "^environments/prod/_shared/|^modules/"; then
-          CHANGED_TIERS=$(echo "$ALL_TIERS" | jq -c)
+          CHANGED_TIERS="$ALL_TIERS_JSON"
         fi
 
         ###########################################
@@ -91,13 +96,16 @@ jobs:
 
         for tier in "${ALL_TIERS[@]}"; do
           if [ -d "$tier" ]; then
-            if echo "$CHANGED_TIERS" | grep -q "$tier"; then
+            # Check if this tier is in CHANGED_TIERS
+            if echo "$CHANGED_TIERS" | jq -e --arg t "$tier" 'index($t) != null' > /dev/null; then
               VALID_TIERS=$(echo "$VALID_TIERS" | jq -c --arg t "$tier" '. + [$t]')
             fi
+          else
+            echo "⚠️  Tier directory not found: $tier"
           fi
         done
 
-        CHANGED_TIERS=$VALID_TIERS
+        CHANGED_TIERS="$VALID_TIERS"
         echo "Valid tiers: $CHANGED_TIERS"
 
         ###########################################
@@ -209,10 +217,11 @@ jobs:
       run: tflint --format compact
 
   #############################################
-  # Job 4: Security Scanning - tfsec (per-tier)
+  # Job 4: Security Scanning - Trivy (per-tier)
+  # Note: tfsec is deprecated and merged into Trivy
   #############################################
-  tfsec:
-    name: tfsec - ${{ matrix.tier }}
+  trivy:
+    name: Trivy - ${{ matrix.tier }}
     runs-on: ubuntu-latest
     needs: [ detect-changes ]
     if: needs.detect-changes.outputs.any_changed == 'true'
@@ -224,11 +233,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Run tfsec
-      uses: aquasecurity/tfsec-action@v1.0.3
+    - name: Run Trivy (Terraform config scan)
+      uses: aquasecurity/trivy-action@0.28.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        working_directory: ${{ matrix.tier }}
-        additional_args: --format lovely
+        scan-type: "config"
+        scan-ref: ${{ matrix.tier }}
+        format: "table"
+        exit-code: "1"
+        severity: "HIGH,CRITICAL"
+        # trivyignores: ".trivyignore"
 
   #############################################
   # Job 5: Checkov Security Scan (per-tier)
@@ -270,10 +285,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        ref: ${{ github.event.pull_request.head.ref || github.ref }}
+        ref: ${{ github.head_ref || github.ref_name }}
+        fetch-depth: 0
 
     - name: Generate terraform docs
-      uses: terraform-docs/gh-actions@v1.2.0
+      uses: terraform-docs/gh-actions@v1.3.0
       with:
         working-dir: ${{ matrix.tier }}
         output-file: README.md
@@ -284,7 +300,9 @@ jobs:
       id: docs-check
       working-directory: ${{ matrix.tier }}
       run: |
-        git diff --exit-code README.md || echo "changed=true" >> $GITHUB_OUTPUT
+        if ! git diff --exit-code README.md; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
 
     - name: Comment PR if docs need update
       if: github.event_name == 'pull_request' && steps.docs-check.outputs.changed == 'true'
@@ -309,7 +327,7 @@ jobs:
     - terraform-format
     - terraform-validate
     - tflint
-    - tfsec
+    - trivy
     - checkov
     - terraform-docs
     runs-on: ubuntu-latest
@@ -339,8 +357,8 @@ jobs:
           exit 1
         fi
 
-        if [[ "${{ needs.tfsec.result }}" != "success" ]]; then
-          echo "❌ tfsec security scan failed"
+        if [[ "${{ needs.trivy.result }}" != "success" ]]; then
+          echo "❌ Trivy security scan failed"
           exit 1
         fi
 
