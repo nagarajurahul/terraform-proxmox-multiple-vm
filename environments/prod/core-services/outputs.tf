@@ -6,14 +6,14 @@
 # Raw Data Outputs (for programmatic consumption)
 # -----------------------------------------------------------------------------
 output "vm_ips" {
-  description = "Map of VM names to their primary IPv4 addresses"
+  description = "Map of VM keys to their VM primary IPv4 addresses"
   value = {
     for key, vm in module.vm : key => vm.vm_ipv4_addresses
   }
 }
 
 output "vm_hostnames" {
-  description = "Map of VM names to their hostnames"
+  description = "Map of VM keys to their VM hostnames"
   value = {
     for key, vm in module.vm : key => vm.vm_hostname
   }
