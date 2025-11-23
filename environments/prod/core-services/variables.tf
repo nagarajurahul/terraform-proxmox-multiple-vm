@@ -57,7 +57,6 @@ variable "security" {
   type = object({
     lock_password = bool
     tpm_version   = string
-    default_user  = string
     users = map(object({
       hashed_password     = string
       ssh_authorized_keys = list(string)
@@ -75,6 +74,12 @@ variable "security" {
     })
   })
   sensitive = true
+}
+
+# Separate variable for Ansible inventory output
+variable "ansible_user" {
+  description = "Default SSH user for Ansible connections"
+  type        = string
 }
 
 # -----------------------------------------------------------------------------

@@ -33,7 +33,7 @@ output "ansible_inventory_ini" {
           "%s ansible_host=%s ansible_user=%s",
           module.vm[key].vm_hostname,
           module.vm[key].vm_ipv4_addresses,
-          var.security.default_user
+          var.ansible_user
         )
       ]
     ))
@@ -51,7 +51,7 @@ output "ansible_inventory_json" {
         hostvars = {
           for key, vm in module.vm : vm.vm_hostname => {
             ansible_host = vm.vm_ipv4_addresses
-            ansible_user = var.security.default_user
+            ansible_user = var.ansible_user
             vm_group     = local.all_vms[key].group
             environment  = var.environment
           }
