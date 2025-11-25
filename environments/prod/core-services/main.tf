@@ -3,6 +3,8 @@ module "vm" {
   source   = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=e71679a91e5deb70e9a1b514ff097f5b17ce928a"
   for_each = local.all_vms
 
+  control_server = var.control_server
+
   # VM identity
   vm_name     = each.value.vm_name
   vm_hostname = each.value.vm_hostname

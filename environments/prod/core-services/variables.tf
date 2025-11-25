@@ -82,6 +82,13 @@ variable "ansible_user" {
   type        = string
 }
 
+# Control Server Flag
+variable "control_server" {
+  type        = bool
+  default     = false
+  description = "Please define whether this is control server or not. Control server flag will determine the cloud-init template."
+}
+
 # -----------------------------------------------------------------------------
 # VM Definitions
 # -----------------------------------------------------------------------------
