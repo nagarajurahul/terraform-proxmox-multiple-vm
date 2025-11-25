@@ -1,6 +1,6 @@
 module "vm" {
-  # v3.2.0
-  source   = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=e71679a91e5deb70e9a1b514ff097f5b17ce928a"
+  # v3.3.0
+  source   = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=e9fc9a4a9c62d778e2127e784b97fe3ab98d8210"
   for_each = local.all_vms
 
   control_server = var.control_server
@@ -47,4 +47,6 @@ module "vm" {
   fail2ban_max_retry = var.security.fail2ban.fail2ban_max_retry
   fail2ban_ban_time  = var.security.fail2ban.fail2ban_ban_time
   fail2ban_find_time = var.security.fail2ban.fail2ban_find_time
+
+  install_docker = var.install_docker
 }

@@ -89,6 +89,13 @@ variable "control_server" {
   description = "Please define whether this is control server or not. Control server flag will determine the cloud-init template."
 }
 
+# Install Docker Flag
+variable "install_docker" {
+  type        = bool
+  default     = true
+  description = "Whether to install Docker during cloud-init"
+}
+
 # -----------------------------------------------------------------------------
 # VM Definitions
 # -----------------------------------------------------------------------------
