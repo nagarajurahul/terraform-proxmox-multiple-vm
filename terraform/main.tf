@@ -1,6 +1,6 @@
 module "vm" {
-  # v3.6.0
-  source   = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=418b52dcc7db1afb181930c7e0095f59e39409ea"
+  # v3.6.1
+  source   = "git::https://github.com/nagarajurahul/terraform-proxmox-vm-module.git?ref=47d778a43a3c16e354b41a1f0999212c1d401812"
   for_each = local.all_vms
 
   control_server = var.control_server
